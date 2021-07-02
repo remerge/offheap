@@ -100,7 +100,7 @@ func Malloc(numBytes int64, path string) *MmapMalloc {
 			}
 			mm.File = file
 		} else {
-			file, err := os.OpenFile(mm.Path, os.O_RDWR, 0777)
+			file, err := os.OpenFile(mm.Path, os.O_RDONLY, 0777)
 			if err != nil {
 				panic(err)
 			}
