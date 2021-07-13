@@ -79,6 +79,7 @@ func Malloc(numBytes int64, path string) *MmapMalloc {
 	}
 
 	flags := syscall.MAP_SHARED
+	prot := syscall.PROT_READ | syscall.PROT_WRITE
 	if path == "" {
 		flags = syscall.MAP_ANON | syscall.MAP_PRIVATE
 		mm.Fd = -1
@@ -100,7 +101,13 @@ func Malloc(numBytes int64, path string) *MmapMalloc {
 			}
 			mm.File = file
 		} else {
-			file, err := os.OpenFile(mm.Path, os.O_RDWR, 0777)
+			fm := os.O_RDWR
+			if numBytes == -1 {
+				fm = os.O_RDONLY
+				prot = syscall.PROT_READ
+			}
+
+			file, err := os.OpenFile(mm.Path, fm, 0777)
 			if err != nil {
 				panic(err)
 			}
@@ -133,7 +140,6 @@ func Malloc(numBytes int64, path string) *MmapMalloc {
 
 	mm.BytesAlloc = sz
 
-	prot := syscall.PROT_READ | syscall.PROT_WRITE
 
 	var mmap []byte
 	var err error
